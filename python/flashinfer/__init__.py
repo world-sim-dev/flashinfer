@@ -15,6 +15,7 @@ limitations under the License.
 """
 
 from .activation import gelu_and_mul, gelu_tanh_and_mul, silu_and_mul
+from .customfn import div_clamp_to
 from .cascade import (
     BatchDecodeWithSharedPrefixPagedKVCacheWrapper,
     BatchPrefillWithSharedPrefixPagedKVCacheWrapper,

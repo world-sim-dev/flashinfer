@@ -79,6 +79,8 @@ void fused_add_rmsnorm(torch::Tensor input, torch::Tensor residual, torch::Tenso
 
 void silu_and_mul(torch::Tensor& out, torch::Tensor& input);
 
+void div_clamp_to(torch::Tensor& out, const torch::Tensor& input, const torch::Tensor& scale);
+
 void gelu_tanh_and_mul(torch::Tensor& out, torch::Tensor& input);
 
 void gelu_and_mul(torch::Tensor& out, torch::Tensor& input);
