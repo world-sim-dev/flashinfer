@@ -30,13 +30,13 @@ def div_clamp_to(input: torch.Tensor, scale: torch.Tensor, output_dtype: torch.d
     Parameters
     ----------
     input: torch.Tensor
-        Input tensor, shape (..., hidden_size).
+        Input tensor, shape: (..., hidden_size), dtype: torch.bfloat16 or torch.float16
     
     scale: torch.Tensor
-        Scale tensor, shape (hidden_size).
+        Scale tensor, shape: (hidden_size), dtype: torch.float32
 
     output_dytpe: torch.dtype
-        Output Dtype, torch.float8_e4m3fn or torch.float8_e5m2.
+        Output dtype: torch.float8_e4m3fn or torch.float8_e5m2.
     
     out: Optional[torch.Tensor]
         The the output tensor, if specified, the kernel will update this tensor inplace.
@@ -54,5 +54,5 @@ def div_clamp_to(input: torch.Tensor, scale: torch.Tensor, output_dtype: torch.d
         out = torch.empty(
             input.shape, device=input.device, dtype=output_dtype,
         )
-    _kernels.div_clamp_to(out, input, scale)
+    _kernels.div_clamp_to(out, input, scale.flatten())
     return out

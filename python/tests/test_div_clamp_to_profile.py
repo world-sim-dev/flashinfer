@@ -16,7 +16,7 @@ if __name__ == "__main__":
     seq_len = 8000
 
     x = torch.randn(batch_size, seq_len, dim).to(0).to(input_dtype)
-    scale = torch.randn(dim).to(0).to(input_dtype)
+    scale = torch.randn(dim).to(0).to(torch.float32)
 
     finfo = torch.finfo(quant_dtype)
 
