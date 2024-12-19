@@ -46,7 +46,7 @@ __device__ __forceinline__ InputT div_and_clamp(const InputT& x, const InputT& s
 template <typename OutputT, typename InputT>
 __global__ void div_clamp_to(OutputT* __restrict__ output, 
                              const InputT* __restrict__ input, 
-                             const InputT* __restrict__ scale, 
+                             const float* __restrict__ scale, 
                              const int hidden_size) {
   constexpr uint32_t vec_size = 16 / sizeof(InputT);
   const int64_t token_idx = blockIdx.x;
@@ -56,12 +56,12 @@ __global__ void div_clamp_to(OutputT* __restrict__ output,
 
 #pragma unroll 1
   for (uint32_t idx = thread_idx; idx < hidden_size / vec_size; idx += stride) {
-    vec_t<InputT, vec_size> input_vec, scale_vec, output_vec;
-    input_vec.load(input + offset + idx * vec_size);
-    scale_vec.load(scale + idx * vec_size);
+    vec_t<float, vec_size> input_vec, scale_vec, output_vec;
+    input_vec.cast_load(input + offset + idx * vec_size);
+    scale_vec.cast_load(scale + idx * vec_size);
 #pragma unroll
     for (uint32_t i = 0; i < vec_size; ++i) {
-        output_vec[i] = div_and_clamp<OutputT, InputT>(input_vec[i], scale_vec[i]);
+        output_vec[i] = div_and_clamp<OutputT, float>(input_vec[i], scale_vec[i]);
     }
     output_vec.cast_store(output + offset + idx * vec_size);
   }
@@ -70,9 +70,9 @@ __global__ void div_clamp_to(OutputT* __restrict__ output,
   // process the remaining elements
 #pragma unroll 1
   for (int64_t idx = thread_idx; idx < hidden_size % (stride * vec_size); idx += stride) {
-    InputT x = input[offset + remaining_offset + idx];
-    InputT s = scale[remaining_offset + idx];
-    output[offset + remaining_offset + idx] = OutputT(div_and_clamp<OutputT, InputT>(x, s));
+    float x = float(input[offset + remaining_offset + idx]);
+    float s = scale[remaining_offset + idx];
+    output[offset + remaining_offset + idx] = OutputT(div_and_clamp<OutputT, float>(x, s));
   }
 }
 
