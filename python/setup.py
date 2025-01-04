@@ -251,12 +251,13 @@ def get_instantiation_cu() -> Tuple[List[str], List[str]]:
 
 
 def get_version():
-    version = os.getenv("FLASHINFER_BUILD_VERSION")
-    if version is None:
-        with open(root / "version.txt") as f:
-            version = f.read().strip()
-    return version
-
+    try:
+        # 获取短版本的commit id
+        commit_id = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+        print(f"install commit_id = {commit_id}")
+        return commit_id
+    except:
+        return "unknown"
 
 def get_cuda_version() -> Tuple[int, int]:
     if torch_cpp_ext.CUDA_HOME is None:
