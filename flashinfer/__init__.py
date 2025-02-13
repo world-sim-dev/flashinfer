@@ -89,3 +89,5 @@ from .sampling import top_p_sampling_from_probs as top_p_sampling_from_probs
 from .sparse import BlockSparseAttentionWrapper as BlockSparseAttentionWrapper
 
 from ._build_meta import __version__ as __version__
+
+from .customfn import div_clamp_to as div_clamp_to

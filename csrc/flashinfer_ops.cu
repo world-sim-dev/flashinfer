@@ -197,6 +197,11 @@ void chain_speculative_sampling(at::Tensor draft_probs, at::Tensor draft_token_i
                                 at::Tensor output_emitted_token_num, bool deterministic,
                                 int64_t cuda_stream);
 
+//========== customfn ==========
+
+void div_clamp_to(at::Tensor& output, const at::Tensor& input, 
+                  const at::Tensor& scale, int64_t cuda_stream);
+
 //========== pybind11 ==========
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
@@ -268,4 +273,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("top_k_mask_logits", &top_k_mask_logits, "Mask logits by top-k mask");
   m.def("chain_speculative_sampling", &chain_speculative_sampling,
         "Speculative sampling from sequence of probabilities");
+
+  // customfn
+  m.def("div_clamp_to", &div_clamp_to, "Fused div, clamp and to operation");
 }
