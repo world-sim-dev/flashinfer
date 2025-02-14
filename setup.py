@@ -55,11 +55,13 @@ def write_if_different(path: Path, content: str) -> None:
 
 
 def get_version():
-    package_version = (root / "version.txt").read_text().strip()
-    local_version = os.environ.get("FLASHINFER_LOCAL_VERSION")
-    if local_version is None:
-        return package_version
-    return f"{package_version}+{local_version}"
+    try:
+        # 获取短版本的commit id
+        commit_id = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode().strip()
+        print(f"install commit_id = {commit_id}")
+        return "0.2.0.post2+" + commit_id
+    except:
+        return "unknown"
 
 
 def generate_build_meta(aot_build_meta: dict) -> None:
@@ -235,6 +237,8 @@ if enable_aot:
         "csrc/single_decode.cu",
         "csrc/single_prefill.cu",
         "csrc/flashinfer_ops.cu",
+        # custom fn by sandai
+        "csrc/customfn.cu",
     ]
     kernel_sm90_sources = [
         "csrc/group_gemm_sm90.cu",
@@ -242,11 +246,11 @@ if enable_aot:
         "csrc/batch_prefill_sm90.cu",
         "csrc/flashinfer_ops_sm90.cu",
     ]
-    decode_sources = list(gen_dir.glob("*decode_head*.cu"))
+    decode_sources = [str(f) for f in gen_dir.glob("*decode_head*.cu")]
     prefill_sources = [
-        f for f in gen_dir.glob("*prefill_head*.cu") if "_sm90" not in f.name
+        str(f) for f in gen_dir.glob("*prefill_head*.cu") if "_sm90" not in f.name
     ]
-    prefill_sm90_sources = list(gen_dir.glob("*prefill_head*_sm90.cu"))
+    prefill_sm90_sources = [str(f) for f in gen_dir.glob("*prefill_head*_sm90.cu")]
     ext_modules = [
         torch_cpp_ext.CUDAExtension(
             name="flashinfer._kernels",
@@ -272,6 +276,7 @@ if enable_aot:
         ]
 
 setuptools.setup(
+    name="flashinfer",
     version=get_version(),
     ext_modules=ext_modules,
     cmdclass=cmdclass,
